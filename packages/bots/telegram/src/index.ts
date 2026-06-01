@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 import http from 'node:http';
-import { Server } from 'socket.io';
+
 import { PortResolver } from '@pjtaudirabot/core';
 import {
   initInfrastructure,
