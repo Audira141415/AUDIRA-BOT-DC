@@ -78,8 +78,6 @@ export async function createApp() {
   });
 
   // Register plugins
-  const enableUpgradeInsecureRequests =
-    (process.env.ENABLE_UPGRADE_INSECURE_REQUESTS || '').toLowerCase() === 'true';
   const enableStrictTransportSecurity =
     (process.env.ENABLE_STRICT_TRANSPORT_SECURITY || '').toLowerCase() === 'true';
   const enableSecureIsolationHeaders =
