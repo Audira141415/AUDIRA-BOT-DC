@@ -148,7 +148,7 @@ export default function OperationalOverview({
               <ShieldCheck className="w-12 h-12" />
            </div>
            <div>
-              <h2 className="text-6xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter leading-none mb-4">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter leading-none mb-4">
                 Operations Center
               </h2>
               <div className="flex items-center gap-6 text-[11px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.5em] font-mono italic">

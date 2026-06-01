@@ -1,4 +1,10 @@
+/**
+ * @module SentimentService
+ * @description Advanced sentiment analysis using OpenAI with rule-based fallback.
+ * @author Audira Engineering
+ */
 import { ILogger } from '@pjtaudirabot/core';
+
 import { PrismaClient } from '@prisma/client';
 import OpenAI from 'openai';
 

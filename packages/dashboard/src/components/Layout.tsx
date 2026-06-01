@@ -359,11 +359,11 @@ export default function Layout() {
         </header>
 
         {/* Neural Outlet - Content Terminal */}
-        <main className={`flex-1 overflow-y-auto ${theme === 'dark' ? 'bg-[#020617]' : 'bg-white'} relative perspective-2000 transition-colors duration-700`}>
+        <main className={`flex-1 overflow-auto ${theme === 'dark' ? 'bg-[#020617]' : 'bg-white'} relative perspective-2000 transition-colors duration-700`}>
            {/* Terminal Vignette Effect */}
            <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_200px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_0_300px_rgba(0,0,0,0.4)] z-30" />
            
-           <div className="p-12 max-w-[2100px] mx-auto relative z-20">
+           <div className="p-4 sm:p-8 lg:p-12 max-w-[2100px] mx-auto relative z-20">
               <Outlet />
            </div>
         </main>

@@ -98,6 +98,13 @@ const LiveTerminal: React.FC = () => {
     const targetSocket = socketsRef.current[takeoverPlatform];
     if (!targetSocket) return;
 
+    targetSocket.emit('agent:takeover', {
+      platform: takeoverPlatform,
+      userId: takeoverId,
+      text: takeoverText
+    });
+
+    setTakeoverText('');
     setTakeoverId(null);
   };
 

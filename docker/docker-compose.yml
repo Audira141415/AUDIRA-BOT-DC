@@ -10,7 +10,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT:-5433}:5432"
+      - "${DB_PORT:-5412}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pjtaudi}"]
       interval: 10s
@@ -28,7 +28,7 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-6370}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

@@ -12,7 +12,7 @@ echo   PJTAudiRaBot v1.0.0
 echo  ============================================================
 echo.
 
-cd /d F:\PJTAUDIRABOT
+cd /d "%~dp0"
 
 :: ----------------------------------------------------------------
 :: STEP 1: Kill processes on service ports (including overrides)
@@ -24,7 +24,7 @@ echo.
 set STOP_API_PORT=4000
 set STOP_WHATSAPP_PORT=4020
 set STOP_TELEGRAM_PORT=4010
-set STOP_DASHBOARD_PORT=3000
+set STOP_DASHBOARD_PORT=3387
 
 if exist ".env.ports" (
     echo  [INFO] Membaca port override dari .env.ports ...
@@ -71,8 +71,8 @@ echo  Stopping Dashboard (port %STOP_DASHBOARD_PORT%)...
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%STOP_DASHBOARD_PORT% " 2^>nul') do (
     taskkill /PID %%a /F >nul 2>&1
 )
-if not "%STOP_DASHBOARD_PORT%"=="3000" (
-    for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3000 " 2^>nul') do (
+if not "%STOP_DASHBOARD_PORT%"=="3387" (
+    for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3387 " 2^>nul') do (
         taskkill /PID %%a /F >nul 2>&1
     )
 )

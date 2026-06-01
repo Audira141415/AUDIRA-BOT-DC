@@ -347,7 +347,7 @@ export default function DashboardPage() {
                   <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
                   CMD_GW: v3.0_ULTRA_PHASE
                 </span>
-                <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none mt-2">
+                <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none mt-2">
                   Control Deck
                 </h1>
              </div>

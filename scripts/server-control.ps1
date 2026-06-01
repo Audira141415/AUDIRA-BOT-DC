@@ -3,7 +3,7 @@ param(
     [ValidateSet('start', 'stop', 'restart', 'status', 'logs')]
     [string]$Action,
 
-    [string]$RemoteHost = 'audira@192.168.100.157',
+    [string]$RemoteHost = 'audira@192.168.100.156',
     [int]$Tail = 200
 )
 
@@ -15,7 +15,7 @@ function Invoke-Remote {
         [string]$Command
     )
 
-    ssh $RemoteHost $Command
+    ssh -o StrictHostKeyChecking=no $RemoteHost $Command
     if ($LASTEXITCODE -ne 0) {
         throw "Remote command failed with exit code $LASTEXITCODE"
     }

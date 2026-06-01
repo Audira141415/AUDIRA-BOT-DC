@@ -88,11 +88,7 @@ export async function createApp() {
     hsts: enableStrictTransportSecurity ? undefined : false,
     crossOriginOpenerPolicy: enableSecureIsolationHeaders ? undefined : false,
     originAgentCluster: enableSecureIsolationHeaders ? undefined : false,
-    contentSecurityPolicy: {
-      directives: {
-        upgradeInsecureRequests: enableUpgradeInsecureRequests ? [] : null,
-      },
-    },
+    contentSecurityPolicy: false,
   });
   // CORS — restrict origins in production, allow all in development
   const allowedOrigins = process.env.CORS_ORIGINS

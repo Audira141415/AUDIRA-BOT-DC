@@ -22,7 +22,7 @@ try {
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3000,
+    port: process.env.DASHBOARD_PORT ? parseInt(process.env.DASHBOARD_PORT, 10) : 3387,
     proxy: {
       '/api': {
         target: `http://localhost:${apiPort}`,

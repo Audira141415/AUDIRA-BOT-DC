@@ -13,7 +13,7 @@ echo   PJTAudiRaBot v1.0.0
 echo  ============================================================
 echo.
 
-cd /d F:\PJTAUDIRABOT
+cd /d "%~dp0"
 
 :: ----------------------------------------------------------------
 :: Default port values (will be overridden if conflict detected)
@@ -21,7 +21,7 @@ cd /d F:\PJTAUDIRABOT
 set AUDIRA_API_PORT=4000
 set AUDIRA_TELEGRAM_PORT=4010
 set AUDIRA_WHATSAPP_PORT=4020
-set AUDIRA_DASHBOARD_PORT=3000
+set AUDIRA_DASHBOARD_PORT=3387
 
 :: ================================================================
 :: STEP 0: Smart Port Check & Auto-Fix
@@ -168,7 +168,7 @@ echo.
 :: ----------------------------------------------------------------
 echo [3/6] Starting API Server (port %AUDIRA_API_PORT%)...
 set API_PORT=%AUDIRA_API_PORT%
-start "AUDIRA - API Server" cmd /k "title AUDIRA - API Server [port %AUDIRA_API_PORT%] && cd /d F:\PJTAUDIRABOT && set API_PORT=%AUDIRA_API_PORT% && pnpm dev:api"
+start "AUDIRA - API Server" cmd /k "title AUDIRA - API Server [port %AUDIRA_API_PORT%] && cd /d ""%~dp0"" && set API_PORT=%AUDIRA_API_PORT% && pnpm dev:api"
 timeout /t 3 /nobreak >nul
 
 :: Verify API started (quick health check after delay)
@@ -182,7 +182,7 @@ echo.
 :: ----------------------------------------------------------------
 echo [4/6] Starting WhatsApp Bot (port %AUDIRA_WHATSAPP_PORT%)...
 set WHATSAPP_PORT=%AUDIRA_WHATSAPP_PORT%
-start "AUDIRA - WhatsApp Bot" cmd /k "title AUDIRA - WhatsApp Bot [port %AUDIRA_WHATSAPP_PORT%] && cd /d F:\PJTAUDIRABOT && set WHATSAPP_PORT=%AUDIRA_WHATSAPP_PORT% && pnpm dev:whatsapp"
+start "AUDIRA - WhatsApp Bot" cmd /k "title AUDIRA - WhatsApp Bot [port %AUDIRA_WHATSAPP_PORT%] && cd /d ""%~dp0"" && set WHATSAPP_PORT=%AUDIRA_WHATSAPP_PORT% && pnpm dev:whatsapp"
 timeout /t 3 /nobreak >nul
 echo  [OK] WhatsApp Bot window opened.
 echo.
@@ -192,7 +192,7 @@ echo.
 :: ----------------------------------------------------------------
 echo [4b/6] Starting Telegram Bot (port %AUDIRA_TELEGRAM_PORT%)...
 set TELEGRAM_PORT=%AUDIRA_TELEGRAM_PORT%
-start "AUDIRA - Telegram Bot" cmd /k "title AUDIRA - Telegram Bot [port %AUDIRA_TELEGRAM_PORT%] && cd /d F:\PJTAUDIRABOT && set TELEGRAM_PORT=%AUDIRA_TELEGRAM_PORT% && pnpm dev:telegram"
+start "AUDIRA - Telegram Bot" cmd /k "title AUDIRA - Telegram Bot [port %AUDIRA_TELEGRAM_PORT%] && cd /d ""%~dp0"" && set TELEGRAM_PORT=%AUDIRA_TELEGRAM_PORT% && pnpm dev:telegram"
 timeout /t 3 /nobreak >nul
 echo  [OK] Telegram Bot window opened.
 echo.
@@ -202,7 +202,7 @@ echo.
 :: ----------------------------------------------------------------
 echo [5/6] Starting Dashboard (port %AUDIRA_DASHBOARD_PORT%)...
 set DASHBOARD_PORT=%AUDIRA_DASHBOARD_PORT%
-start "AUDIRA - Dashboard" cmd /k "title AUDIRA - Dashboard [port %AUDIRA_DASHBOARD_PORT%] && cd /d F:\PJTAUDIRABOT && set DASHBOARD_PORT=%AUDIRA_DASHBOARD_PORT% && pnpm dev:dashboard"
+start "AUDIRA - Dashboard" cmd /k "title AUDIRA - Dashboard [port %AUDIRA_DASHBOARD_PORT%] && cd /d ""%~dp0"" && set DASHBOARD_PORT=%AUDIRA_DASHBOARD_PORT% && pnpm dev:dashboard"
 timeout /t 2 /nobreak >nul
 echo  [OK] Dashboard window opened.
 echo.
@@ -225,8 +225,8 @@ if not exist "logs" mkdir logs
     echo   WHATSAPP_PORT  = %AUDIRA_WHATSAPP_PORT%
     echo   TELEGRAM_PORT  = %AUDIRA_TELEGRAM_PORT%
     echo   DASHBOARD_PORT = %AUDIRA_DASHBOARD_PORT%
-    echo   DB_PORT        = 5433
-    echo   REDIS_PORT     = 6379
+    echo   DB_PORT        = 5412
+    echo   REDIS_PORT     = 6370
     echo.
     echo Port Override Active: %PORT_CHECK_RESULT%
     echo   0 = semua port default, 1 = ada override
@@ -245,8 +245,8 @@ echo   API Server        %AUDIRA_API_PORT%    AUDIRA - API Server
 echo   WhatsApp Bot      %AUDIRA_WHATSAPP_PORT%    AUDIRA - WhatsApp Bot
 echo   Telegram Bot      %AUDIRA_TELEGRAM_PORT%    AUDIRA - Telegram Bot
 echo   Dashboard         %AUDIRA_DASHBOARD_PORT%    AUDIRA - Dashboard
-echo   PostgreSQL        5433    (Docker container: pjtaudi-db)
-echo   Redis             6379    (Docker container: pjtaudi-redis)
+echo   PostgreSQL        5412    (Docker container: pjtaudi-db)
+echo   Redis             6370    (Docker container: pjtaudi-redis)
 echo.
 
 if %PORT_CHECK_RESULT% equ 1 (

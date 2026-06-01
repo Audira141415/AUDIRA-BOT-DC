@@ -273,10 +273,10 @@ const AdminHub = () => {
         
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
           <div>
-             <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-4 mb-4">
                 <div className={`w-4 h-4 rounded-full animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.8)] ${health?.overallStatus === 'healthy' ? 'bg-emerald-500' : 'bg-rose-500 shadow-rose-500/50'}`} />
-                <h1 className="text-5xl font-black text-slate-950 dark:text-white tracking-tighter uppercase italic leading-none underline decoration-indigo-600/30 underline-offset-[16px] decoration-8">Super Admin Hub</h1>
-             </div>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-950 dark:text-white tracking-tighter uppercase italic leading-none underline decoration-indigo-600/30 underline-offset-[16px] decoration-8">Super Admin Hub</h1>
+              </div>
              <p className="text-slate-500 dark:text-slate-400 text-base max-w-xl font-medium leading-relaxed mt-4 drop-shadow-sm">AudiraBot Central Nervous System. Monitor global core services health and manage bot connectivity protocols from this master terminal.</p>
           </div>
           

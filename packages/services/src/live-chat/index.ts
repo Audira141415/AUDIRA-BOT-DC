@@ -1,4 +1,10 @@
+/**
+ * @module LiveChatService
+ * @description Real-time WebSocket bridge for remote bot monitoring and agent takeover.
+ * @author Audira Engineering
+ */
 import { Server } from 'socket.io';
+
 import { EventBus } from '../events';
 import { ILogger } from '@pjtaudirabot/core';
 

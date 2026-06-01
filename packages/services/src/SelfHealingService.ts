@@ -1,4 +1,10 @@
+/**
+ * @module SelfHealingService
+ * @description Autonomous service monitoring and recovery protocol for bot infrastructure.
+ * @author Audira Engineering
+ */
 import { ILogger } from '@pjtaudirabot/core';
+
 import { PrismaClient } from '@prisma/client';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';

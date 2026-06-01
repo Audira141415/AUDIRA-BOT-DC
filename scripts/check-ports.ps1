@@ -16,9 +16,9 @@ $PortMap = [ordered]@{
     'API_PORT'       = 4000
     'TELEGRAM_PORT'  = 4010
     'WHATSAPP_PORT'  = 4020
-    'DASHBOARD_PORT' = 3000
-    'DB_PORT'        = 5433
-    'REDIS_PORT'     = 6379
+    'DASHBOARD_PORT' = 3387
+    'DB_PORT'        = 5412
+    'REDIS_PORT'     = 6370
 }
 
 # ─── Load .env overrides if present ──────────────────────────

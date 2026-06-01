@@ -14,6 +14,7 @@
     "generate": "prisma generate",
     "studio": "prisma studio",
     "db:seed": "ts-node seeds/seed.ts",
+    "seed:campaigns": "node seed-campaigns.js",
     "db:pull": "prisma db pull"
   },
   "devDependencies": {

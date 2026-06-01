@@ -14,17 +14,19 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "telegraf": "^4.14.0",
+    "@pjtaudirabot/config": "workspace:*",
+    "@pjtaudirabot/core": "workspace:*",
+    "@pjtaudirabot/services": "workspace:*",
+    "@prisma/client": "^5.7.0",
     "pino": "^8.17.2",
     "redis": "^4.6.11",
-    "@prisma/client": "^5.7.0",
-    "@pjtaudirabot/core": "workspace:*",
-    "@pjtaudirabot/config": "workspace:*",
-    "@pjtaudirabot/services": "workspace:*"
+    "socket.io": "^4.8.3",
+    "telegraf": "^4.14.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "typescript": "^5.3.3",
-    "tsx": "^4.7.0"
+    "@types/socket.io": "^3.0.2",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
   }
 }
