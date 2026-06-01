@@ -22,7 +22,7 @@ function Invoke-Remote {
 }
 
 $composePrefix = @(
-    'cd /home/audira/pjtaudirabot',
+    'cd /home/audira/AUDIRA-BOT-DC',
     'git pull origin main',
     'cd docker',
     'docker compose --env-file ../.env.production --env-file ~/.config/pjtaudi/secrets.env -f docker-compose.yml -f docker-compose.prod.yml'
