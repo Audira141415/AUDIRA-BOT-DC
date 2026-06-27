@@ -49,3 +49,41 @@ export class SetRoleCommand extends BaseCommandHandler {
     };
   }
 }
+
+export class SystemWipeCommand extends BaseCommandHandler {
+  constructor(
+    logger: ILogger,
+    private sessionDir: string,
+  ) {
+    super(logger);
+  }
+
+  getName() { return 'system-wipe-sessions'; }
+  getDescription() { return 'Emergency wipe of all WhatsApp session keys and terminate process'; }
+  getCategory() { return 'admin'; }
+  getRequiredRole() { return 'admin' as const; }
+
+  async execute(_context: CommandContext): Promise<CommandResult> {
+    this.logger.warn('EMERGENCY SYSTEM WIPE TRIGGERED BY ADMIN');
+
+    const { rmSync } = await import('node:fs');
+
+    setTimeout(() => {
+      try {
+        this.logger.warn(`Wiping session directory: ${this.sessionDir}`);
+        rmSync(this.sessionDir, { recursive: true, force: true });
+        this.logger.warn('Wipe complete. Terminating process.');
+        process.exit(1);
+      } catch (err) {
+        this.logger.error('Error during emergency session wipe', err as Error);
+        process.exit(1);
+      }
+    }, 2000);
+
+    return {
+      success: true,
+      message: '🚨 *EMERGENCY SYSTEM WIPE:* WhatsApp sessions directory is being wiped. Bot process will terminate in 2 seconds.',
+    };
+  }
+}
+

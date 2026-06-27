@@ -48,6 +48,7 @@ import {
   BulkStatusCommand,
   BulkJobsCommand,
   SetRoleCommand,
+  SystemWipeCommand,
   ListGroupsCommand,
   AddGroupCommand,
   SetMonitorGroupCommand,
@@ -127,6 +128,7 @@ async function main(): Promise<void> {
   registry.register(new BulkStatusCommand(logger, bulkOpsService));
   registry.register(new BulkJobsCommand(logger, bulkOpsService));
   registry.register(new SetRoleCommand(logger, userService));
+  registry.register(new SystemWipeCommand(logger, botsConfig.whatsapp.sessionDir));
   registry.register(new ListGroupsCommand(logger, groupManagementService));
   registry.register(new AddGroupCommand(logger, groupManagementService));
   registry.register(new SetMonitorGroupCommand(logger, groupManagementService));
@@ -173,6 +175,22 @@ async function main(): Promise<void> {
     nocAutoExtract: true,
     sheetsService,
     onTicketCreated: (params) => broadcastNewTicket?.(params) ?? Promise.resolve(),
+  });
+
+  const tgAlertNotifier = new TelegramNotifier(
+    config.TELEGRAM_BOT_TOKEN || '',
+    config.TELEGRAM_NOC_CHAT_ID || '',
+    logger
+  );
+
+  connection.onStateChange(async (state) => {
+    if (state === 'open' && tgAlertNotifier.isConfigured()) {
+      try {
+        await tgAlertNotifier.sendMessage('🟢 <b>[SECURITY ALERT]</b> WhatsApp Bot session successfully logged in / connected to WhatsApp Web.');
+      } catch (err) {
+        logger.error('Failed to send WhatsApp login alert to Telegram', err as Error);
+      }
+    }
   });
 
   connection.onMessage((msg) => messageHandler.handle(msg));

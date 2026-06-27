@@ -47,10 +47,25 @@ export class TelegramConnection {
     });
 
     if (this.config.webhookUrl) {
+      const port = Number(process.env.TELEGRAM_PORT) || 4010;
+      const secretToken = process.env.TELEGRAM_WEBHOOK_SECRET_TOKEN;
+
       this.logger.info('Starting Telegram bot with webhook', {
         url: this.config.webhookUrl,
+        port,
+        secretTokenEnabled: !!secretToken,
       });
-      await this.bot.telegram.setWebhook(this.config.webhookUrl);
+
+      // Launch Telegraf with webhook configuration to handle incoming updates securely
+      await this.bot.launch({
+        webhook: {
+          domain: this.config.webhookUrl,
+          port,
+          secretToken,
+        }
+      }).catch((err) => {
+        this.logger.error('Telegraf webhook launch error', err as Error);
+      });
     } else {
       this.logger.info('Starting Telegram bot with polling');
       // bot.launch() resolves when the bot STOPS (not when it starts),

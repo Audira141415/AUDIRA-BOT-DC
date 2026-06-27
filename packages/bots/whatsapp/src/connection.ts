@@ -9,10 +9,10 @@ const require = createRequire(import.meta.url);
 const {
   makeWASocket,
   DisconnectReason,
-  useMultiFileAuthState,
   fetchLatestWaWebVersion,
   makeCacheableSignalKeyStore,
 } = require('@whiskeysockets/baileys');
+import { useEncryptedMultiFileAuthState } from './encrypted-auth';
 
 type WASocket = any;
 
@@ -30,6 +30,7 @@ export class WhatsAppConnection {
   private socket: WASocket | null = null;
   private reconnectCount = 0;
   private onMessageCallback: ((msg: any) => Promise<void>) | null = null;
+  private onStateChangeCallback: ((state: 'open' | 'connecting' | 'close') => void) | null = null;
   public connectionState: 'open' | 'connecting' | 'close' = 'connecting';
   private lastQR: string | null = null;
 
@@ -42,11 +43,23 @@ export class WhatsAppConnection {
     this.onMessageCallback = callback;
   }
 
+  onStateChange(callback: (state: 'open' | 'connecting' | 'close') => void): void {
+    this.onStateChangeCallback = callback;
+  }
+
   async connect(): Promise<void> {
     await mkdir(this.config.sessionDir, { recursive: true });
 
-    const { state, saveCreds } = await useMultiFileAuthState(
-      path.resolve(this.config.sessionDir)
+    const encryptionKey = process.env.SESSION_ENCRYPTION_KEY;
+    if (encryptionKey) {
+      this.logger.info('WhatsApp session encryption enabled (AES-256)');
+    } else {
+      this.logger.warn('WhatsApp session encryption disabled (SESSION_ENCRYPTION_KEY is not set)');
+    }
+
+    const { state, saveCreds } = await useEncryptedMultiFileAuthState(
+      path.resolve(this.config.sessionDir),
+      encryptionKey
     );
 
     const baileysLogger = pino({ level: 'silent' });
@@ -111,6 +124,7 @@ export class WhatsAppConnection {
         this.connectionState = 'open';
         this.reconnectCount = 0;
         this.logger.info('WhatsApp connection established');
+        this.onStateChangeCallback?.('open');
       }
     });
 
