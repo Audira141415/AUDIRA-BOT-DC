@@ -149,12 +149,15 @@ export class ChatPipeline {
       }
 
       case 'incident': {
+        const rootCauseText = result.rootCause ?? (result.possibleCauses && result.possibleCauses.length > 0
+          ? `Kemungkinan Penyebab:\n${result.possibleCauses.map((c, i) => `${i + 1}. ${c}`).join('\n')}`
+          : null);
         const record = await this.db.incident.create({
           data: {
             userId,
             title: result.title,
             description: result.issue,
-            rootCause: result.rootCause ?? null,
+            rootCause: rootCauseText,
             solution: result.solution ?? null,
             sourceMessage,
             platform: platform.toUpperCase() as any,
@@ -225,12 +228,15 @@ export class ChatPipeline {
         break;
 
       case 'incident':
+        const sheetRootCause = result.rootCause ?? (result.possibleCauses && result.possibleCauses.length > 0
+          ? result.possibleCauses.join('; ')
+          : undefined);
         await this.sheets.syncIncident({
           id: recordId,
           user: displayName,
           title: result.title,
           issue: result.issue,
-          rootCause: result.rootCause,
+          rootCause: sheetRootCause,
           solution: result.solution,
           createdAt: now,
         });
@@ -298,7 +304,14 @@ export class ChatPipeline {
 
       case 'incident': {
         let reply = `🔧 *Incident Logged*\n\n🚨 ${result.title}\n📋 ${result.issue}`;
-        if (result.rootCause) reply += `\n🔍 Root Cause: ${result.rootCause}`;
+        if (result.possibleCauses && result.possibleCauses.length > 0) {
+          reply += `\n\n💡 *Analisa Kemungkinan Penyebab:*`;
+          result.possibleCauses.forEach((cause, idx) => {
+            reply += `\n${idx + 1}. ${cause}`;
+          });
+        } else if (result.rootCause) {
+          reply += `\n🔍 Root Cause: ${result.rootCause}`;
+        }
         if (result.solution) reply += `\n✅ Solution: ${result.solution}`;
         reply += `\n\n_ID: ${recordId}_`;
         return reply;

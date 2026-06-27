@@ -31,6 +31,7 @@ export interface ExtractedIncident {
   issue: string;
   rootCause?: string;
   solution?: string;
+  possibleCauses?: string[];
 }
 
 export type ExtractionResult =
@@ -72,6 +73,7 @@ Today's date/time: ${today}
    - "santai" / "low priority" / "nanti aja" → "low"
 5. For tags (only for notes): extract up to 5 relevant single-word tags from the content.
 6. Respond in the LANGUAGE of the user's message for title/content/message fields.
+7. For incidents, analyze the reported issue and provide 2-4 realistic possible root causes or technical hypotheses as 'possibleCauses' (an array of strings).
 
 ## Output schemas
 
@@ -85,7 +87,7 @@ Today's date/time: ${today}
 {"type":"reminder","message":"<what to remind>","remindAt":"<ISO-8601>"}
 
 ### incident
-{"type":"incident","title":"<short title>","issue":"<what happened>","rootCause":"<why|omit>","solution":"<how it was fixed|omit>"}
+{"type":"incident","title":"<short title>","issue":"<what happened>","rootCause":"<why|omit>","solution":"<how it was fixed|omit>","possibleCauses":["<cause 1>","<cause 2>"]}
 
 Respond with ONLY the JSON object.`;
 }
