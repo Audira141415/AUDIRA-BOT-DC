@@ -228,6 +228,9 @@ export async function createBotServices(
       openai: config.OPENAI_API_KEY
         ? { apiKey: config.OPENAI_API_KEY, model: config.OPENAI_MODEL, temperature: config.OPENAI_TEMPERATURE }
         : undefined,
+      ollama: config.OLLAMA_ENDPOINT
+        ? { endpoint: config.OLLAMA_ENDPOINT }
+        : undefined,
     },
     redis,
     logger,

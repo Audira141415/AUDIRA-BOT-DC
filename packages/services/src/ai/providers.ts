@@ -75,6 +75,71 @@ export class OpenAIProvider implements IAIProvider {
   }
 }
 
+export class OllamaProvider implements IAIProvider {
+  readonly name = 'ollama';
+
+  constructor(
+    private endpoint: string,
+    private defaultModel: string,
+    private logger: ILogger
+  ) {}
+
+  async chat(messages: AIMessage[], options?: AIRequestOptions): Promise<AIResponse> {
+    const model = options?.model ?? this.defaultModel;
+    const url = `${this.endpoint.replace(/\/$/, '')}/api/chat`;
+
+    this.logger.debug('Ollama request', { model, url, messageCount: messages.length });
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          stream: false,
+          options: {
+            temperature: options?.temperature ?? 0.7,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Ollama API returned HTTP ${res.status}`);
+      }
+
+      const data = (await res.json()) as any;
+      const content = data.message?.content;
+
+      if (!content) {
+        throw new Error('Empty response from Ollama');
+      }
+
+      return {
+        content,
+        model,
+        usage: {
+          promptTokens: data.prompt_eval_count ?? 0,
+          completionTokens: data.eval_count ?? 0,
+          totalTokens: (data.prompt_eval_count ?? 0) + (data.eval_count ?? 0),
+        },
+      };
+    } catch (err) {
+      this.logger.error('Ollama connection failed', err as Error);
+      throw err;
+    }
+  }
+
+  async isAvailable(): Promise<boolean> {
+    try {
+      const res = await fetch(`${this.endpoint.replace(/\/$/, '')}/api/tags`);
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
 export class MockAIProvider implements IAIProvider {
   readonly name = 'mock';
 
@@ -95,3 +160,4 @@ export class MockAIProvider implements IAIProvider {
     return true;
   }
 }
+

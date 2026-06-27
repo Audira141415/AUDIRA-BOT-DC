@@ -1,11 +1,11 @@
 import { ILogger } from '@pjtaudirabot/core';
 import { RedisClientType } from 'redis';
 import { IAIProvider, AIMessage, AIResponse, AIServiceConfig, AIRequestOptions } from './types';
-import { OpenAIProvider, MockAIProvider } from './providers';
+import { OpenAIProvider, OllamaProvider, MockAIProvider } from './providers';
 import { IMemoryManager } from '../memory/types';
 
 export { IAIProvider, AIMessage, AIResponse, AIServiceConfig, AIRequestOptions } from './types';
-export { OpenAIProvider, MockAIProvider } from './providers';
+export { OpenAIProvider, OllamaProvider, MockAIProvider } from './providers';
 
 const SYSTEM_PROMPT = `You are a helpful assistant integrated into a multi-platform chat bot. 
 Be concise and helpful. Keep responses under 500 words unless asked for more detail. 
@@ -50,6 +50,16 @@ export class AIService {
           config.openai.apiKey,
           config.openai.model,
           config.openai.temperature,
+          this.logger
+        );
+      }
+      case 'ollama': {
+        if (!config.ollama?.endpoint) {
+          throw new Error('Ollama endpoint is required');
+        }
+        return new OllamaProvider(
+          config.ollama.endpoint,
+          process.env.OLLAMA_MODEL || 'llama3',
           this.logger
         );
       }
