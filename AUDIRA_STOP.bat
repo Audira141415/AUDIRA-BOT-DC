@@ -91,12 +91,8 @@ echo.
 :: STEP 2: Stop Docker containers
 :: ----------------------------------------------------------------
 echo [2/4] Stopping Docker containers (db + redis)...
-docker compose -f docker/docker-compose.yml stop db redis
-if %errorlevel% neq 0 (
-    echo  [WARN] Docker stop returned an error (might already be stopped).
-) else (
-    echo  [OK] Docker containers stopped.
-)
+docker compose --env-file .env -f docker/docker-compose.yml stop db redis
+echo  [OK] Docker containers stopped.
 echo.
 
 :: ----------------------------------------------------------------
@@ -116,7 +112,7 @@ echo.
 echo [4/4] Cleaning port overrides...
 if exist ".env.ports" (
     del /f /q ".env.ports" >nul 2>&1
-    echo  [OK] Port override (.env.ports) dihapus.
+    echo  [OK] Port override .env.ports dihapus.
 ) else (
     echo  [OK] Tidak ada port override aktif.
 )
