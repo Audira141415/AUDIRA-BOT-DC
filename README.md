@@ -1,6 +1,7 @@
-# PJTAudiBot - Production-Ready Multi-Platform Bot System
+# AUDIRA-BOT-DC - Production-Ready Multi-Platform Bot System
 
-A scalable, modular bot system supporting WhatsApp (Baileys) and Telegram (Telegraf) with unified command handling, AI integration, rate limiting, and comprehensive logging.
+A scalable, modular bot system supporting WhatsApp (Baileys) and Telegram (Telegraf) with unified command handling, AI integration, rate limiting, and comprehensive logging. Developed by **Agus Dwi R (AUDIRA)**.
+
 
 ## 🚀 Features
 
@@ -270,7 +271,8 @@ pnpm type-check
 
 ## 📝 License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE](file:///f:/AUDIRA-BOT-DC/LICENSE) file for details.
+Copyright (c) 2026 Agus Dwi R (AUDIRA).
 
 ## 🆘 Troubleshooting
 
@@ -299,5 +301,6 @@ For issues, questions, or suggestions, please open an issue on GitHub or contact
 
 ---
 
-**Last Updated**: 2024
-**Version**: 1.0.0
+**Last Updated**: June 2026
+**Version**: 2.0.0
+**Copyright**: © 2026 Agus Dwi R (AUDIRA)
