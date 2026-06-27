@@ -1,7 +1,11 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { proto, BufferJSON, initAuthCreds } from '@whiskeysockets/baileys';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { proto, BufferJSON, initAuthCreds } = require('@whiskeysockets/baileys');
+
 
 // AES-256-CBC Encryption helpers
 function encrypt(text: string, secretKey: string): string {
