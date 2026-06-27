@@ -1,306 +1,164 @@
-# AUDIRA-BOT-DC - Production-Ready Multi-Platform Bot System
+# 🤖 AUDIRA-BOT-DC — Enterprise Bot Management Suite
 
-A scalable, modular bot system supporting WhatsApp (Baileys) and Telegram (Telegraf) with unified command handling, AI integration, rate limiting, and comprehensive logging. Developed by **Agus Dwi R (AUDIRA)**.
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-2.0.0-blue.svg?style=for-the-badge" alt="Version 2.0.0">
+  <img src="https://img.shields.io/badge/Node.js-20.x-green.svg?style=for-the-badge&logo=node.js" alt="Node.js 20">
+  <img src="https://img.shields.io/badge/Platforms-WhatsApp%20%7C%20Telegram-orange.svg?style=for-the-badge" alt="Platforms">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License MIT">
+</p>
 
+---
 
-## 🚀 Features
+## 🌟 Overview
 
-- **Multi-Platform Support**: WhatsApp and Telegram with unified command handler
-- **AI Integration**: OpenAI, Anthropic, Ollama, or local LLM support
-- **Distributed Rate Limiting**: Redis-backed rate limiter for multi-instance deployments
-- **User Session Tracking**: Redis-based session management with TTL
-- **Audit Logging**: Complete audit trail for all operations
-- **REST API**: Fastify-based API server for bot management and operations
-- **Modular Architecture**: Clean separation of concerns with workspace packages
-- **Production-Ready**: Docker support, health checks, error handling
-- **Database**: PostgreSQL with Prisma ORM for data persistence
+**AUDIRA-BOT-DC** (PJTAUDIRABOT) is a state-of-the-art, production-ready bot management suite. Running on a scalable monorepo structure, it integrates **WhatsApp** (via Baileys) and **Telegram** (via grammY) with a React-based telemetry dashboard, centralized command logic, distributed rate-limiting, and AI-driven capabilities.
 
-## 📋 Prerequisites
+Developed by **Agus Dwi R (AUDIRA)**.
 
-- Node.js 20.0.0+
-- PostgreSQL 15+
-- Redis 7+
-- Docker & Docker Compose (for containerized deployment)
-- pnpm package manager
+---
 
-## 🏗️ Project Structure
+## 🏗️ Core Architecture & Monorepo Structure
+
+Built with **pnpm workspaces** for strict dependency boundaries and modular reuse:
 
 ```
-packages/
-├── core/              # Shared types, interfaces, logger
-├── config/            # Configuration management
-├── services/          # Business logic (commands, rate limiter, AI)
-├── database/          # Prisma ORM and migrations
-├── api/               # REST API server (Fastify)
-└── bots/
-    ├── whatsapp/      # WhatsApp bot (Baileys)
-    └── telegram/      # Telegram bot (Telegraf)
-
-docker/               # Docker and docker-compose files
-docs/                 # Documentation
-scripts/              # Utility scripts
+AUDIRA-BOT-DC/
+├── packages/
+│   ├── api/            # Fastify REST API server (port 4000)
+│   ├── bots/           # Multi-platform bot orchestrators (WhatsApp & Telegram)
+│   ├── dashboard/      # Vite + React Live Monitoring Dashboard (Neural Insights)
+│   ├── services/       # Core business logic (AI, clustering, watchdog, command registry)
+│   ├── config/         # Zod-validated configuration manager
+│   ├── core/           # Shared logging (Winston), base errors, and models
+│   └── database/       # PostgreSQL models with Prisma ORM
 ```
+
+---
+
+## 🧠 Audira Intelligent Core (AIC) & Advanced Features
+
+The system features advanced automation modules designed to provide cognitive intelligence and high availability:
+
+| Module | Technical Overview | Key Capabilities |
+| :--- | :--- | :--- |
+| **Smart Ticket Clustering** | Automated NLP classification & similarity matching | Groups related tickets within a 60-min window, handles cascade resolution, and alerts via Telegram NOC. |
+| **Sentiment Analysis** | Injects AI models (`GPT-4o-mini`) into pipeline | Evaluates user expressions to output sentiment score: `POSITIVE`, `NEUTRAL`, `NEGATIVE`, or `URGENT`. |
+| **Self-Healing Watchdog** | Active monitoring & autonomous container recovery | Runs system check every minute; auto-restarts Docker containers on prolonged API or Bot drops. |
+| **Unified Identity** | Cross-platform contact mapping | Links WhatsApp and Telegram accounts together under a unified profile using verified phone numbers. |
+| **Live Chat Takeover** | Socket.IO bridge for agent intervention | Allows admins to whisper tips or completely takeover bot sessions from the dashboard. |
+
+---
+
+## 🔐 Role-Based Permission Model
+
+The command handler enforces strict Role-Based Access Control (RBAC):
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                       admin                             │
+│  - Manage groups, reports, configuration, promote users  │
+└───────────────────────────┬─────────────────────────────┘
+                            │
+┌───────────────────────────▼─────────────────────────────┐
+│                       user                              │
+│  - Create tickets, write knowledge base, set reminders  │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Command Access Reference
+
+| Command | Category | Min Role | Description |
+| :--- | :--- | :--- | :--- |
+| `!add-group` | Group Setup | **Admin** | Register a WhatsApp/Telegram group for monitoring |
+| `!list-groups` | Group Setup | **Admin** | List all registered and monitored groups |
+| `!set-monitor-group` | Group Setup | **Admin** | Enable/disable monitoring on specific group |
+| `!remove-group` | Group Setup | **Admin** | Stop monitoring and remove group registration |
+| `!setrole <phone> admin` | Security | **Admin** | Elevate a user's permission level |
+| `!ticket <issue>` | Data Entry | **User** | Create a system-wide support ticket |
+| `!kb <query>` | Data Entry | **User** | Query internal knowledge base |
+| `!remind <time> <msg>` | Data Entry | **User** | Schedule a reminder |
+| `!ping` | Diagnostic | **User** | Test responsiveness |
+
+---
 
 ## 🚀 Quick Start
 
-### Local Development
+### 📋 Prerequisites
+*   **Node.js**: `v20.0.0+`
+*   **PostgreSQL**: `v15+`
+*   **Redis**: `v7+`
+*   **pnpm**: `v8+`
+*   **Docker & Compose**: (Required for containerized setup)
 
-1. **Clone and install dependencies**
-   ```bash
-   pnpm install
-   ```
+### 💻 Local Installation
 
-2. **Setup environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+1.  **Clone and Install Dependencies**
+    ```bash
+    pnpm install
+    ```
 
-3. **Start services with Docker**
-   ```bash
-   docker-compose -f docker/docker-compose.yml up -d
-   ```
+2.  **Environment Configuration**
+    ```bash
+    cp .env.example .env
+    # Edit the generated .env with your credentials
+    ```
 
-4. **Setup database**
-   ```bash
-   pnpm db:migrate
-   pnpm db:seed
-   ```
+3.  **Start Services via Docker**
+    ```bash
+    docker-compose -f docker/docker-compose.yml up -d
+    ```
 
-5. **Start development servers**
-   ```bash
-   # Start all services
-   pnpm dev
+4.  **Database Migration & Seeding**
+    ```bash
+    pnpm db:migrate
+    pnpm db:seed
+    ```
 
-   # Or start individual services
-   pnpm dev:api
-   pnpm dev:whatsapp
-   pnpm dev:telegram
-   ```
+5.  **Run Development Mode**
+    ```bash
+    # Start everything
+    pnpm dev
 
-### Docker Deployment
+    # Or run specific packages
+    pnpm dev:api
+    pnpm dev:whatsapp
+    pnpm dev:telegram
+    pnpm dev:dashboard
+    ```
+
+---
+
+## 🐳 Production Container Deployment
+
+Use the automated orchestration scripts:
 
 ```bash
-# Local source-based deployment (builds on the machine running compose)
+# Clean build and start dockerized production environment
 pnpm docker:up
 
-# View logs
+# View real-time logs
 pnpm docker:logs
 
-# Stop services
+# Tear down environment
 pnpm docker:down
 ```
 
-For production deployments, prefer the registry-based flow:
+---
 
-```bash
-# One command from Windows: build + push + upload refs + remote release restart + image verification
-scripts/build-and-push-release.cmd <registry-prefix> [tag] [deploy] [server-host]
+## 📄 Documentation Index
 
-# Manual server controls (strict, pull required)
-/home/audira/pjtaudirabot/scripts/server-control.sh release-start
+For deep dives into our architecture and features, refer to the documentation files:
 
-# Local fallback when registry pull is unavailable and images already exist on server
-/home/audira/pjtaudirabot/scripts/server-control.sh release-restart-local
+*   📖 [Documentation Index](./docs/INDEX.md) — Map of all documentation
+*   🏗️ [Architecture Guide](./docs/ARCHITECTURE.md) — Technical details & design
+*   🎯 [Clustering Quickstart](./docs/CLUSTERING_QUICK_REFERENCE.md) — Incident clustering setup
+*   🔐 [Permission Model](./docs/PERMISSION_MODEL.md) — Detailed RBAC manual
+*   🚀 [Deployment Checklist](./docs/DEPLOYMENT_CHECKLIST.md) — Production rollout guide
 
-# Hot-swap API image only (no deps)
-/home/audira/pjtaudirabot/scripts/server-control.sh release-api <api-image>
-```
-
-### Production Safety Locks
-
-- Production deploy is locked to immutable release images by default.
-- Source-based deploy (`scripts/deploy-to-server.ps1`) is blocked unless `ALLOW_SOURCE_DEPLOY=true` is explicitly set.
-- Manual API hotswap (`server-control.sh release-api`) is blocked unless `ALLOW_MANUAL_HOTSWAP=true` is explicitly set.
-
-### Auto Recovery (Watchdog)
-
-Install watchdog on server (one-time):
-
-```bash
-sudo /home/audira/pjtaudirabot/scripts/install-watchdog.sh
-```
-
-What it does every minute:
-
-- Runs `scripts/health-gate.sh` (`/health`, `/`, `/uptime`, and admin bot health checks)
-- Triggers `server-control.sh release-restart` on failure
-- Uses release flow health gate + auto rollback if new release is unhealthy
-
-## 📡 API Documentation
-
-### Health Check
-```bash
-GET /health
-```
-
-### Authentication
-```bash
-POST /auth/login
-POST /auth/logout
-POST /auth/refresh
-```
-
-### Commands
-```bash
-GET /commands
-GET /commands/:id
-POST /commands/:id/execute
-GET /commands/:id/executions
-```
-
-### Users
-```bash
-GET /users/:id
-PATCH /users/:id
-GET /users/:id/sessions
-```
-
-### Sessions
-```bash
-GET /sessions/:id
-POST /sessions
-DELETE /sessions/:id
-```
-
-### Rate Limits
-```bash
-GET /rate-limit/status
-GET /rate-limit/user/:userId
-POST /rate-limit/user/:userId/reset
-```
-
-See [docs/API.md](./docs/API.md) for complete API documentation.
-
-## 🤖 Built-in Commands
-
-| Command | Description | Alias |
-|---------|-------------|-------|
-| `!help` | List available commands | `!h` |
-| `!ping` | Check bot responsiveness | - |
-| `!status` | Get system status (admin) | - |
-| `!echo <message>` | Echo back message | - |
-
-## ⚙️ Configuration
-
-All configuration is managed via environment variables. See `.env.example` for complete list.
-
-**Key Variables:**
-- `DATABASE_URL` - PostgreSQL connection string
-- `REDIS_URL` - Redis connection string
-- `TELEGRAM_BOT_TOKEN` - Telegram bot token
-- `AI_PROVIDER` - AI service (openai, anthropic, ollama)
-- `OPENAI_API_KEY` - OpenAI API key
-- `WHATSAPP_SESSION_DIR` - WhatsApp session storage
-- `JWT_SECRET` - JWT signing secret
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-pnpm test
-
-# Watch mode
-pnpm test:watch
-
-# Coverage report
-pnpm test:coverage
-```
-
-## 📦 Building
-
-```bash
-# Build all packages
-pnpm build
-
-# Build specific package
-pnpm -C packages/api build
-```
-
-## 🔍 Linting & Formatting
-
-```bash
-# Check code quality
-pnpm lint
-
-# Fix issues automatically
-pnpm lint:fix
-
-# Format code
-pnpm format
-
-# Type checking
-pnpm type-check
-```
-
-## 📚 Documentation
-
-- [Architecture Guide](./docs/ARCHITECTURE.md) - System design and component overview
-- [Database Schema](./docs/DATABASE.md) - Data model and relationships
-- [Development Guide](./docs/DEVELOPMENT.md) - Local development setup
-- [API Reference](./docs/API.md) - Complete API documentation
-- [Deployment Guide](./docs/DEPLOYMENT.md) - Production deployment strategies
-
-## 🔒 Security
-
-- JWT-based authentication
-- Rate limiting on all endpoints
-- Input validation and sanitization
-- SQL injection prevention (Prisma parameterized queries)
-- XSS protection (output encoding)
-- CORS configuration
-- Helmet security headers
-- Audit logging of all operations
-
-## 📊 Monitoring
-
-- Health check endpoints (`/health`, `/ready`)
-- Structured JSON logging with Pino
-- Sentry integration (optional)
-- Request correlation IDs
-- Performance metrics
-
-## 🤝 Contributing
-
-1. Create feature branch: `git checkout -b feature/my-feature`
-2. Write tests first (TDD)
-3. Implement feature
-4. Run linting and tests: `pnpm lint && pnpm test`
-5. Commit with conventional commit: `git commit -m "feat: add my feature"`
-6. Push and create pull request
+---
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](file:///f:/AUDIRA-BOT-DC/LICENSE) file for details.
-Copyright (c) 2026 Agus Dwi R (AUDIRA).
 
-## 🆘 Troubleshooting
-
-### Database Connection Error
-- Verify PostgreSQL is running: `docker ps | grep postgres`
-- Check DATABASE_URL in .env
-- Reset database: `pnpm db:reset`
-
-### Redis Connection Error
-- Verify Redis is running: `docker ps | grep redis`
-- Check REDIS_URL in .env
-
-### WhatsApp QR Code Not Appearing
-- Check WhatsApp session directory exists
-- Clear sessions: `rm -rf data/whatsapp-sessions`
-- Restart bot
-
-### Telegram Bot Not Responding
-- Verify TELEGRAM_BOT_TOKEN is set correctly
-- Check bot token in BotFather
-- Restart telegram service
-
-## 📞 Support
-
-For issues, questions, or suggestions, please open an issue on GitHub or contact the development team.
-
----
-
-**Last Updated**: June 2026
-**Version**: 2.0.0
-**Copyright**: © 2026 Agus Dwi R (AUDIRA)
+Copyright © 2026 **Agus Dwi R (AUDIRA)**. All rights reserved.
