@@ -31,6 +31,7 @@ export class WhatsAppConnection {
   private reconnectCount = 0;
   private onMessageCallback: ((msg: any) => Promise<void>) | null = null;
   private onStateChangeCallback: ((state: 'open' | 'connecting' | 'close') => void) | null = null;
+  private onQRCallback: ((qr: string) => void) | null = null;
   public connectionState: 'open' | 'connecting' | 'close' = 'connecting';
   private lastQR: string | null = null;
 
@@ -45,6 +46,10 @@ export class WhatsAppConnection {
 
   onStateChange(callback: (state: 'open' | 'connecting' | 'close') => void): void {
     this.onStateChangeCallback = callback;
+  }
+
+  onQR(callback: (qr: string) => void): void {
+    this.onQRCallback = callback;
   }
 
   async connect(): Promise<void> {
@@ -94,6 +99,7 @@ export class WhatsAppConnection {
       if (qr) {
         this.lastQR = qr;
         this.logger.info('QR Code received — scan with WhatsApp');
+        this.onQRCallback?.(qr);
       }
 
       if (connection === 'close') {

@@ -193,6 +193,16 @@ async function main(): Promise<void> {
     }
   });
 
+  connection.onQR(async (qr) => {
+    await eventBus.emit('whatsapp.qr', { qr });
+    try {
+      await redis.set('whatsapp:last_qr', qr);
+      await redis.expire('whatsapp:last_qr', 120);
+    } catch (err) {
+      logger.error('Failed to save QR code to Redis', err as Error);
+    }
+  });
+
   connection.onMessage((msg) => messageHandler.handle(msg));
   await connection.connect();
 

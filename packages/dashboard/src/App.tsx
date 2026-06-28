@@ -56,6 +56,7 @@ const MaintenancePage = lazy(() => import('./pages/Maintenance'));
 const AdminHubPage = lazy(() => import('./pages/AdminHub'));
 const LiveTerminalPage = lazy(() => import('./pages/LiveTerminal'));
 const SLAWeightedCompliancePage = lazy(() => import('./pages/SLAWeightedCompliance'));
+const WhatsAppIntegrationPage = lazy(() => import('./pages/WhatsAppIntegration'));
 
 function PageLoader() {
   return (
@@ -127,6 +128,7 @@ export default function App() {
         <Route path="maintenance" element={<MaintenancePage />} />
         <Route path="groups" element={<GroupManagementPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="whatsapp" element={<WhatsAppIntegrationPage />} />
         <Route path="sentiment" element={<SentimentAnalysisPage />} />
         <Route path="scheduled-messages" element={<ScheduledMessagesPage />} />
         <Route path="campaigns" element={<CampaignManagerPage />} />

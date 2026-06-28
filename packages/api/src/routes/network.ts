@@ -105,4 +105,64 @@ export default async function networkRoutes(app: FastifyInstance, ctx: AppContex
 
     return reply.send({ data: summary });
   });
+
+  app.post('/diagnose', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { host } = request.body as { host: string };
+    if (!host) {
+      return reply.status(400).send({ error: 'Host parameter is required' });
+    }
+    
+    // Command injection sanitation
+    if (!/^[a-zA-Z0-9\.\-_:]+$/.test(host)) {
+      return reply.status(400).send({ error: 'Invalid hostname format' });
+    }
+    
+    ctx.logger.info(`Running network diagnostics for host: ${host}`);
+    const result = await pingHost(host);
+    return reply.send({ success: true, data: result });
+  });
 }
+
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+const execAsync = promisify(exec);
+
+async function pingHost(host: string): Promise<{ online: boolean; latency: number; loss: number; output: string }> {
+  const isWindows = process.platform === 'win32';
+  const command = isWindows ? `ping -n 3 ${host}` : `ping -c 3 ${host}`;
+  try {
+    const { stdout } = await execAsync(command);
+    
+    let latency = 0;
+    let loss = 0;
+    
+    if (isWindows) {
+      const avgMatch = stdout.match(/Average\s*=\s*(\d+)ms/);
+      if (avgMatch) latency = parseInt(avgMatch[1], 10);
+      
+      const lossMatch = stdout.match(/Lost\s*=\s*\d+\s*\((\d+)%\s*loss\)/);
+      if (lossMatch) loss = parseInt(lossMatch[1], 10);
+    } else {
+      const avgMatch = stdout.match(/rtt\s*min\/avg\/max\/mdev\s*=\s*[\d\.]+\/([\d\.]+)\//);
+      if (avgMatch) latency = parseFloat(avgMatch[1]);
+      
+      const lossMatch = stdout.match(/(\d+)%\s*packet\s*loss/);
+      if (lossMatch) loss = parseInt(lossMatch[1], 10);
+    }
+    
+    return {
+      online: loss < 100,
+      latency,
+      loss,
+      output: stdout
+    };
+  } catch (err) {
+    return {
+      online: false,
+      latency: 0,
+      loss: 100,
+      output: (err as Error).message
+    };
+  }
+}
+

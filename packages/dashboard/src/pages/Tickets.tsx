@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '../lib/api';
+import { SEO } from '../components/SEO';
 import { 
   Ticket, 
   Search, 
@@ -24,7 +25,8 @@ import {
   Monitor,
   ShieldCheck,
   Target,
-  LifeBuoy
+  LifeBuoy,
+  Loader2
 } from 'lucide-react';
 import { toast } from '../components/Toast';
 
@@ -77,8 +79,24 @@ export default function TicketsPage() {
   const [bulkCandidateCount, setBulkCandidateCount] = useState(0);
   const [bulkConfirmText, setBulkConfirmText] = useState('');
   const [bulkFilterSnapshot, setBulkFilterSnapshot] = useState<any>({});
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [runbooks, setRunbooks] = useState<any[]>([]);
+  const [executingRunbookId, setExecutingRunbookId] = useState<string | null>(null);
+  const [runbookLogs, setRunbookLogs] = useState<string | null>(null);
   
   const limit = 15;
+
+  useEffect(() => {
+    const loadRunbooks = async () => {
+      try {
+        const res = await api.getRunbooksList();
+        setRunbooks(res.runbooks || []);
+      } catch (err) {
+        console.error('Failed to load runbooks', err);
+      }
+    };
+    loadRunbooks();
+  }, []);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -162,6 +180,7 @@ export default function TicketsPage() {
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <SEO title="Support Tickets" description="Customer support ticket management and SLA monitoring." />
       {/* Header Intelligence */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
@@ -443,7 +462,67 @@ export default function TicketsPage() {
                        <p className="text-slate-700 dark:text-slate-300 text-base font-black italic tracking-tight leading-relaxed">{selected.solution}</p>
                     </div>
                   )}
-                </div>
+                 </div>
+
+                 {/* NOC Runbook Mitigation Panel */}
+                 {!['RESOLVED', 'CLOSED'].includes(selected.status) && (
+                   <div className="bg-slate-900 border-2 border-indigo-500/20 p-10 rounded-[48px] shadow-2xl relative group/runbook overflow-hidden">
+                      <div className="absolute inset-0 bg-indigo-500/[0.02] pointer-events-none" />
+                      <div className="flex items-center gap-4 mb-6">
+                         <Cpu className="w-6 h-6 text-indigo-400 animate-pulse" />
+                         <h4 className="text-lg font-black text-indigo-400 uppercase tracking-widest italic font-mono">Automated NOC Runbooks</h4>
+                      </div>
+                      
+                      <div className="space-y-6">
+                         <p className="text-slate-400 text-xs leading-relaxed max-w-xl">
+                            Trigger direct remote troubleshooting and mitigation scripts against this ticket's network node parameters. Actions are logged to the ticket history.
+                         </p>
+
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {runbooks.map((rb) => (
+                               <button
+                                 key={rb.id}
+                                 disabled={!!executingRunbookId}
+                                 onClick={async () => {
+                                   setExecutingRunbookId(rb.id);
+                                   setRunbookLogs(null);
+                                   try {
+                                     const res = await api.executeRunbook(selected.id, rb.id);
+                                     setRunbookLogs(res.logs);
+                                     toast({ type: 'success', title: 'RUNBOOK_SUCCESS', message: `Successfully executed runbook ${rb.name}` });
+                                     loadData();
+                                   } catch (e) {
+                                     toast({ type: 'error', title: 'RUNBOOK_FAILED', message: `Execution failed for ${rb.name}` });
+                                   } finally {
+                                     setExecutingRunbookId(null);
+                                   }
+                                 }}
+                                 className="p-6 bg-black/40 hover:bg-indigo-600/10 border-2 border-white/5 hover:border-indigo-500/30 text-left rounded-[32px] transition-all duration-300 disabled:opacity-30 active:scale-95 flex flex-col justify-between min-h-[140px]"
+                               >
+                                  <div>
+                                     <h5 className="font-black text-white text-[13px] tracking-tight mb-2 uppercase italic">{rb.name}</h5>
+                                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-relaxed">{rb.description}</p>
+                                  </div>
+                                  <span className="text-[9px] font-black text-indigo-400 uppercase font-mono tracking-widest mt-4">EXECUTE_RUNBOOK ➡️</span>
+                               </button>
+                            ))}
+                         </div>
+
+                         {executingRunbookId && (
+                            <div className="flex flex-col items-center justify-center py-10 gap-4">
+                               <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                               <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest animate-pulse font-mono">EXECUTING MITIGATION PROTOCOL...</span>
+                            </div>
+                         )}
+
+                         {runbookLogs && (
+                            <div className="bg-black p-6 rounded-[24px] border border-indigo-500/20 text-[11px] font-mono text-emerald-400 leading-relaxed max-h-48 overflow-y-auto shadow-inner whitespace-pre-wrap mt-6">
+                               {runbookLogs}
+                            </div>
+                         )}
+                      </div>
+                   </div>
+                 )}
               </div>
 
               {/* Action Terminal Control */}

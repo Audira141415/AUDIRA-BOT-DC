@@ -5,6 +5,8 @@ import fastifyHelmet from '@fastify/helmet';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import fastifyRateLimit from '@fastify/rate-limit';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui';
 import bcrypt from 'bcrypt';
 import { getServerConfig, getRedisConfig } from '@pjtaudirabot/config';
 import { createLogger } from '@pjtaudirabot/core';
@@ -95,6 +97,37 @@ export async function createApp() {
   await app.register(fastifyCors, {
     origin: serverConfig.env === 'development' ? true : allowedOrigins,
     credentials: true,
+  });
+
+  // OpenAPI / Swagger Documentation
+  await app.register(fastifySwagger, {
+    openapi: {
+      info: {
+        title: 'AUDIRA-BOT-DC Enterprise API',
+        description: 'REST API documentation for AUDIRA-BOT-DC bot management suite',
+        version: '2.0.0',
+      },
+      servers: [
+        { url: 'http://localhost:4000', description: 'Development Server' }
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+      },
+    },
+  });
+
+  await app.register(fastifySwaggerUi, {
+    routePrefix: '/docs',
+    uiConfig: {
+      docExpansion: 'list',
+      deepLinking: false,
+    },
   });
 
   // JWT — require a strong secret in production

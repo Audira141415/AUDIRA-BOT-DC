@@ -15,6 +15,7 @@ import OperationalOverview from '../components/OperationalOverview';
 import NetworkHealthMap from '../components/NetworkHealthMap';
 import ShiftHandover from '../components/ShiftHandover';
 import AIPredictiveInsights from '../components/AIPredictiveInsights';
+import { SEO } from '../components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -326,6 +327,7 @@ export default function DashboardPage() {
 
   return (
     <div className="relative space-y-16 pb-24">
+      <SEO title="Overview Dashboard" description="Real-time telemetry and system status overview." />
       {/* Decorative Glows */}
       <div className="premium-glow -left-40 top-0 w-[600px] h-[600px] bg-indigo-600/10" />
       <div className="premium-glow -right-40 bottom-0 w-[600px] h-[600px] bg-purple-600/10" />

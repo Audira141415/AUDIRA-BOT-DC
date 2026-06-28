@@ -23,13 +23,46 @@ import {
   Signal, 
   Smartphone, 
   Router,
-  HardDrive
+  HardDrive,
+  X
 } from 'lucide-react';
 import { toast } from '../components/Toast';
 
 export default function NetworkHealthPage() {
   const [branches, setBranches] = useState<Array<Record<string, any>>>([]);
   const [loading, setLoading] = useState(true);
+  const [diagnoseHost, setDiagnoseHost] = useState<string | null>(null);
+  const [diagnosing, setDiagnosing] = useState(false);
+  const [diagnosticsResult, setDiagnosticsResult] = useState<any | null>(null);
+
+  const handleStartDiagnostics = async (branchId: string) => {
+    // Map branchId to a safe ping target (use loopback 127.0.0.1 for local safe verify)
+    const hostMap: Record<string, string> = {
+      'JKT-HQ': '127.0.0.1',
+      'SBY-BRANCH': '127.0.0.1',
+      'BDG-BRANCH': '127.0.0.1',
+      'MDN-BRANCH': '127.0.0.1',
+      'MKS-BRANCH': '127.0.0.1'
+    };
+    const targetHost = hostMap[branchId] || '127.0.0.1';
+    setDiagnoseHost(targetHost);
+    setDiagnosing(true);
+    setDiagnosticsResult(null);
+    try {
+      const res = await api.runDiagnostics(targetHost);
+      setDiagnosticsResult(res.data);
+    } catch (e) {
+      toast({ type: 'error', title: 'DIAGNOSTICS_FAILED', message: 'Target node failed to respond to echo probe.' });
+      setDiagnosticsResult({ online: false, latency: 0, loss: 100, output: e instanceof Error ? e.message : 'Unknown connection fault' });
+    } finally {
+      setDiagnosing(false);
+    }
+  };
+
+  const handleCloseDiagnostics = () => {
+    setDiagnoseHost(null);
+    setDiagnosticsResult(null);
+  };
 
   const load = async () => {
     try { 
@@ -174,6 +207,15 @@ export default function NetworkHealthPage() {
                    )}
                  </div>
                )}
+               
+               <div className="mt-8 pt-6 border-t border-white/10 dark:border-slate-800/30 flex items-center justify-between">
+                  <button 
+                    onClick={() => handleStartDiagnostics(b.branchId)}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600/10 hover:bg-indigo-600 hover:text-white border-2 border-indigo-500/20 text-indigo-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-sm"
+                  >
+                    <Activity className="w-3.5 h-3.5" /> Diagnose Node
+                  </button>
+                </div>
             </div>
           );
         })}
@@ -201,9 +243,70 @@ export default function NetworkHealthPage() {
             <span className="text-[9px] font-black text-slate-500 dark:text-slate-600 uppercase tracking-[0.2em] italic">Mesh health is evaluated across all tectonic connectivity layers every 30 seconds.</span>
          </div>
       </div>
+
+      {/* Diagnostics Terminal Overlay */}
+      {diagnoseHost && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-6 animate-in fade-in duration-300">
+           <div className="w-full max-w-2xl bg-slate-900 border-2 border-indigo-500/30 rounded-[48px] overflow-hidden shadow-2xl relative flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-300">
+              <div className="px-10 py-8 border-b-2 border-indigo-500/10 flex items-center justify-between bg-slate-950/40">
+                 <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-600 rounded-[16px] text-white animate-pulse">
+                       <Activity className="w-6 h-6" />
+                    </div>
+                    <div>
+                       <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none mb-1">Nodal Diagnostics</h3>
+                       <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest font-mono">TARGET_HOST: {diagnoseHost}</p>
+                    </div>
+                 </div>
+                 <button 
+                   onClick={handleCloseDiagnostics}
+                   className="w-12 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all"
+                 >
+                    <X className="w-5 h-5" />
+                 </button>
+              </div>
+
+              <div className="flex-1 p-10 overflow-y-auto font-mono text-sm space-y-8 min-h-[300px]">
+                 <div className="space-y-3">
+                    <p className="text-slate-400"># initiating signal handshake protocols...</p>
+                    <p className="text-slate-400"># executing ICMP echo request command on server...</p>
+                 </div>
+
+                 {diagnosing ? (
+                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                       <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                       <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest animate-pulse">PINGING TARGET NODE...</span>
+                    </div>
+                 ) : diagnosticsResult ? (
+                    <div className="space-y-8">
+                       <div className="grid grid-cols-3 gap-6">
+                          <div className="bg-slate-950/60 p-5 rounded-[24px] border border-indigo-500/10 text-center shadow-inner">
+                             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">STATUS</p>
+                             <p className={`text-lg font-black uppercase italic tracking-tight ${diagnosticsResult.online ? 'text-emerald-500' : 'text-rose-500'}`}>{diagnosticsResult.online ? 'ONLINE' : 'OFFLINE'}</p>
+                          </div>
+                          <div className="bg-slate-950/60 p-5 rounded-[24px] border border-indigo-500/10 text-center shadow-inner">
+                             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">LATENCY</p>
+                             <p className="text-lg font-black text-white italic tracking-tight">{diagnosticsResult.latency}ms</p>
+                          </div>
+                          <div className="bg-slate-950/60 p-5 rounded-[24px] border border-indigo-500/10 text-center shadow-inner">
+                             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">PACKET LOSS</p>
+                             <p className="text-lg font-black text-white italic tracking-tight">{diagnosticsResult.loss}%</p>
+                          </div>
+                       </div>
+
+                       <div className="bg-slate-950 p-6 rounded-[24px] border border-indigo-500/10 text-[12px] font-mono text-emerald-400 leading-relaxed max-h-48 overflow-y-auto scrollbar-thin shadow-inner whitespace-pre-wrap">
+                          {diagnosticsResult.output}
+                       </div>
+                    </div>
+                 ) : null}
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 const RefreshCw = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

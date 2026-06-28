@@ -188,7 +188,6 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     }),
-
   // Stats
   getStatsToday: () => request<{ data: Record<string, unknown> }>('/stats/today'),
   getStatsHistory: (days = 30) =>
@@ -432,7 +431,6 @@ export const api = {
     request<{ success: boolean }>(`/memory/${id}`, { method: 'DELETE' }),
 
   // ─── Settings ────────────────────────────────────────────
-  getBotConfigs: () => request<{ data: Array<Record<string, unknown>> }>('/settings/bot-config'),
   updateBotConfig: (platform: string, data: Record<string, unknown>) =>
     request<{ data: Record<string, unknown> }>(`/settings/bot-config/${platform}`, { method: 'PUT', body: JSON.stringify(data) }),
   getActiveSessions: (page = 1) =>
@@ -714,6 +712,8 @@ export const api = {
     request<{ data: any[] }>('/predictive', undefined, '/api/insights'),
   getSLAWeightedReport: () =>
     request<{ data: { totalScore: number; breakdown: any[]; period: string } }>('/sla/weighted', undefined, '/api/insights'),
+  getSuggestedReply: (message: string) =>
+    request<{ data: string[] }>('/suggest-reply', { method: 'POST', body: JSON.stringify({ message }) }, '/api/insights'),
   
   // ─── Manual Control Hub ──────────────────────────────────
   manualSync: () => request<{ success: boolean; message: string }>('/sync/all', { method: 'POST' }),
@@ -722,4 +722,15 @@ export const api = {
   flushSessions: () => request<{ success: boolean; message: string }>('/sessions/flush', { method: 'POST' }),
   getClusterStats: () => request<{ date: string; metrics: any }>('/cluster/stats/daily', undefined, '/api/tickets'),
   getNetworkMap: () => request<{ data: any[] }>('/map-status', undefined, '/api/network'),
+  runDiagnostics: (host: string) => request<{ success: boolean; data: { online: boolean; latency: number; loss: number; output: string } }>('/diagnose', { method: 'POST', body: JSON.stringify({ host }) }, '/api/network'),
+  getRunbooksList: () => request<{ runbooks: Array<{ id: string; name: string; description: string }> }>('/runbooks/list'),
+  executeRunbook: (ticketId: string, runbookId: string) => request<{ success: boolean; logs: string }>('/runbooks/execute', { method: 'POST', body: JSON.stringify({ ticketId, runbookId }) }),
+
+
+  // --- WhatsApp Integration -----------------------------------------
+
+
+  // WA Integration
+  getBotConfigs: () => request<{ data: any[] }>('/settings/bot-config'),
+  getWhatsAppQR: () => request<{ qr: string | null }>('/whatsapp/qr'),
 };

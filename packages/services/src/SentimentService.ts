@@ -86,4 +86,74 @@ export class SentimentService {
       this.logger.error('Failed to record chat sentiment', err instanceof Error ? err : new Error(String(err)));
     }
   }
+
+  /**
+   * Generates 3 suggested replies based on chat message context.
+   */
+  async suggestReply(message: string): Promise<string[]> {
+    if (this.openai) {
+      try {
+        const response = await this.openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            { 
+              role: 'system', 
+              content: 'You are an expert customer support agent. Generate 3 short, professional suggested replies to the user\'s message. Respond strictly with a JSON array of 3 strings, e.g. ["Option 1", "Option 2", "Option 3"]. Do not include markdown formatting or extra text.'
+            },
+            { role: 'user', content: message }
+          ],
+          max_tokens: 150,
+        });
+        const content = response.choices[0].message.content || '[]';
+        const match = content.match(/\[.*\]/s);
+        if (match) {
+          const arr = JSON.parse(match[0]);
+          if (Array.isArray(arr) && arr.length > 0) return arr.slice(0, 3);
+        }
+      } catch (err) {
+        this.logger.error('OpenAI suggestReply failed', err as Error);
+      }
+    }
+
+    const ollamaEndpoint = process.env.OLLAMA_ENDPOINT;
+    if (process.env.AI_PROVIDER === 'ollama' && ollamaEndpoint) {
+      try {
+        const model = process.env.OLLAMA_MODEL || 'llama3';
+        const url = `${ollamaEndpoint.replace(/\/$/, '')}/api/chat`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { 
+                role: 'system', 
+                content: 'You are an expert customer support agent. Generate 3 short, professional suggested replies to the user\'s message. Respond strictly with a JSON array of 3 strings, e.g. ["Option 1", "Option 2", "Option 3"]. Do not include markdown formatting or extra text.'
+              },
+              { role: 'user', content: message }
+            ],
+            stream: false,
+          })
+        });
+        if (res.ok) {
+          const data = (await res.json()) as any;
+          const text = data.message?.content || '';
+          const match = text.match(/\[.*\]/s);
+          if (match) {
+            const arr = JSON.parse(match[0]);
+            if (Array.isArray(arr) && arr.length > 0) return arr.slice(0, 3);
+          }
+        }
+      } catch (err) {
+        this.logger.error('Ollama suggestReply failed', err as Error);
+      }
+    }
+
+    return [
+      'Mohon maaf atas ketidaknyamanannya. Kami sedang menyelidiki masalah ini.',
+      'Baik, tiket gangguan Anda sudah kami buat. Tim kami akan segera menuju lokasi.',
+      'Terima kasih atas laporannya. Boleh kami tahu VLAN ID atau nomor pelanggan Anda?'
+    ];
+  }
 }
+

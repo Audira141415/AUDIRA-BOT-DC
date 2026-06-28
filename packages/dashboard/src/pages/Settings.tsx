@@ -53,6 +53,43 @@ export default function SettingsPage() {
   const [editConfig, setEditConfig] = useState<Record<string, string>>({});
   const [savingConfig, setSavingConfig] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [whatsappQR, setWhatsappQR] = useState<string | null>(null);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    const checkQR = async () => {
+      const waConfig = configs.find(c => c.platform === 'WHATSAPP');
+      if (waConfig && waConfig.connectionStatus !== 'CONNECTED' && waConfig.isActive) {
+        try {
+          const res = await api.getWhatsAppQR();
+          setWhatsappQR(res.qr);
+        } catch (e) {
+          console.error('Failed to fetch QR', e);
+        }
+      } else {
+        setWhatsappQR(null);
+      }
+    };
+
+    if (configs.length > 0) {
+      checkQR();
+      interval = setInterval(checkQR, 5000);
+    }
+
+    return () => clearInterval(interval);
+  }, [configs]);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const c = await api.getBotConfigs();
+        setConfigs((c.data as any[]) ?? []);
+      } catch (err) {
+        console.error('Auto-sync configurations error', err);
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const load = async () => {
     setLoading(true);
@@ -234,6 +271,31 @@ export default function SettingsPage() {
                     </div>
                   ))}
                </div>
+
+               {cfg.platform === 'WHATSAPP' && cfg.connectionStatus !== 'CONNECTED' && cfg.isActive && whatsappQR && (
+                 <div className="relative z-10 bg-slate-50/80 dark:bg-slate-900/60 border-2 border-indigo-500/20 p-12 rounded-[56px] shadow-2xl backdrop-blur-3xl mb-12 flex flex-col md:flex-row items-center gap-12 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="relative">
+                       <img 
+                         src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(whatsappQR)}`} 
+                         alt="WhatsApp QR Code"
+                         className="w-64 h-64 border-4 border-indigo-500/30 rounded-[32px] p-4 bg-white shadow-xl"
+                       />
+                       <div className="absolute inset-0 rounded-[32px] ring-8 ring-indigo-500/10 pointer-events-none" />
+                    </div>
+                    <div className="flex-1 space-y-4">
+                       <div className="inline-flex items-center gap-3 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 rounded-full text-[10px] font-black uppercase tracking-[0.3em] font-mono italic">
+                          <Radio className="w-4 h-4 animate-pulse" /> WA_LINK_PROTOCOL_ACTIVE
+                       </div>
+                       <h4 className="text-4xl font-black text-slate-950 dark:text-white uppercase italic tracking-tighter">Pair WhatsApp Instance</h4>
+                       <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-lg">
+                          Scan the QR code with your mobile device to link WhatsApp. Go to **WhatsApp ➡️ Linked Devices ➡️ Link a Device** to initiate synchronization.
+                       </p>
+                       <div className="flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest font-mono italic bg-slate-100 dark:bg-slate-950/40 p-4 rounded-2xl w-fit">
+                          <Info className="w-5 h-5 text-indigo-500" /> Auto-refreshes every 2 minutes
+                       </div>
+                    </div>
+                 </div>
+               )}
 
                {cfg.configuration && (
                  <div className="relative z-10 bg-slate-50 dark:bg-slate-900/60 border-2 border-slate-100 dark:border-slate-800/80 p-12 rounded-[56px] shadow-inner backdrop-blur-3xl group/config">

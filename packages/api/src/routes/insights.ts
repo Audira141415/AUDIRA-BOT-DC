@@ -26,4 +26,18 @@ export default async function insightsRoutes(app: FastifyInstance, ctx: AppConte
       return reply.status(500).send({ error: 'Failed to calculate weighted SLA score' });
     }
   });
+
+  app.post('/suggest-reply', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { message } = request.body as { message: string };
+    if (!message) {
+      return reply.status(400).send({ error: 'Message parameter is required' });
+    }
+    try {
+      const suggestions = await ctx.sentiment.suggestReply(message);
+      return reply.send({ data: suggestions });
+    } catch (err) {
+      ctx.logger.error('Failed to generate suggested replies', err as Error);
+      return reply.status(500).send({ error: 'Failed to generate suggestions' });
+    }
+  });
 }

@@ -1,0 +1,11 @@
+# robots.txt for AudiraBot Dashboard Suite
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /live-terminal/
+Disallow: /tickets/
+Allow: /
+Allow: /login
+
+Sitemap: https://audira-bot.domain/sitemap.xml

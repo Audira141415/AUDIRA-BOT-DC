@@ -39,7 +39,8 @@ import {
   Power,
   Terminal,
   Scale,
-  Orbit as OrbitIcon
+  Orbit as OrbitIcon,
+  Smartphone
 } from 'lucide-react';
 import { useTheme } from '../lib/ThemeProvider';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -70,6 +71,7 @@ const sections = [
     title: 'Communication Hub',
     items: [
       { to: '/broadcast', icon: Radio, label: 'Mass Communiqué' },
+      { to: '/whatsapp', icon: Smartphone, label: 'WA Pairing Hub', isNew: true },
       { to: '/chatbot', icon: BotMessageSquare, label: 'Neural Architect' },
       { to: '/inbox', icon: Inbox, label: 'Unified Stream' },
       { to: '/campaigns', icon: Megaphone, label: 'Strategic Ops' },

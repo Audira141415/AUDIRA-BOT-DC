@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Terminal as TerminalIcon, Shield, Zap, Send, User, Bot, AlertCircle, Info, Activity, BarChart2, X, Globe, Lock, MessageSquare, SendHorizontal } from 'lucide-react';
+import { Terminal as TerminalIcon, Shield, Zap, Send, User, Bot, AlertCircle, Info, Activity, BarChart2, X, Globe, Lock, MessageSquare, SendHorizontal, Sparkles, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '../lib/api';
+import { SEO } from '../components/SEO';
 
 interface LiveMessage {
   platform: 'whatsapp' | 'telegram';
@@ -86,10 +88,25 @@ const LiveTerminal: React.FC = () => {
     }
   }, [messages, activeStream]);
 
-  const handleTakeover = (msg: LiveMessage) => {
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
+  const handleTakeover = async (msg: LiveMessage) => {
     setTakeoverId(msg.userId);
     setTakeoverPlatform(msg.platform);
     setTakeoverUser(msg.userName || msg.userId);
+    
+    // Fetch suggestions based on user message
+    setLoadingSuggestions(true);
+    setSuggestions([]);
+    try {
+      const res = await api.getSuggestedReply(msg.text);
+      setSuggestions(res.data || []);
+    } catch (e) {
+      console.error('Failed to load reply suggestions', e);
+    } finally {
+      setLoadingSuggestions(false);
+    }
   };
 
   const sendTakeoverResponse = () => {
@@ -130,6 +147,7 @@ const LiveTerminal: React.FC = () => {
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-12 duration-1000 relative">
+      <SEO title="Live Terminal" description="Real-time live telemetry terminal and bot takeover stream." />
       <div className="premium-glow -left-40 top-0 w-[400px] h-[400px] bg-indigo-500/10" />
 
       <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-12 relative z-10">
@@ -304,6 +322,35 @@ const LiveTerminal: React.FC = () => {
                    </div>
                    <button onClick={() => setTakeoverId(null)} className="p-4 glass rounded-2xl text-white/40 hover:text-white transition-all"><X className="w-5 h-5" /></button>
                  </div>
+
+                 {/* AI Suggested Replies */}
+                 <div className="mb-6 flex flex-col gap-3">
+                   <div className="flex items-center gap-3">
+                      <Sparkles className="w-4 h-4 text-indigo-400" />
+                      <span className="text-[10px] font-black uppercase text-indigo-400/80 tracking-widest font-mono">AI Suggested Responses</span>
+                   </div>
+                   {loadingSuggestions ? (
+                      <div className="flex items-center gap-3 py-2">
+                         <Loader2 className="w-4 h-4 text-indigo-500 animate-spin" />
+                         <span className="text-[10px] font-black uppercase text-slate-600 tracking-widest animate-pulse font-mono">Synthesizing suggestions...</span>
+                      </div>
+                   ) : suggestions.length > 0 ? (
+                      <div className="flex flex-wrap gap-4 mt-2">
+                         {suggestions.map((sug, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setTakeoverText(sug)}
+                              className="px-6 py-3 bg-white/5 hover:bg-indigo-600/20 border border-white/10 hover:border-indigo-500/40 text-slate-300 hover:text-white rounded-full text-xs font-medium transition-all active:scale-95 text-left truncate max-w-md italic"
+                            >
+                               {sug}
+                            </button>
+                         ))}
+                      </div>
+                   ) : (
+                      <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider font-mono">No options loaded</span>
+                   )}
+                 </div>
+
                  <div className="flex gap-6">
                     <div className="flex-1 relative">
                        <input 
